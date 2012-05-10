@@ -790,7 +790,7 @@ jQuery.extend({
     }
   },
 
-  // A method for quickly swapping in/out CSS properties to get correct calculations
+  // A method for quickly swapping in/doc CSS properties to get correct calculations
   swap: function( elem, options, callback ) {
     var old = {};
     // Remember the old values, and insert the new ones
@@ -927,7 +927,7 @@ jQuery.extend({
         // Remember the original values
         var style = elem.style.left, runtimeStyle = elem.runtimeStyle.left;
 
-        // Put in the new values to get a computed value out
+        // Put in the new values to get a computed value doc
         elem.runtimeStyle.left = elem.currentStyle.left;
         elem.style.left = ret || 0;
         ret = elem.style.pixelLeft + "px";
@@ -1212,7 +1212,7 @@ jQuery.extend({
 
 var userAgent = navigator.userAgent.toLowerCase();
 
-// Figure out what browser is being used
+// Figure doc what browser is being used
 jQuery.browser = {
   version: (userAgent.match( /.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/ ) || [])[1],
   safari: /webkit/.test( userAgent ),
@@ -1686,7 +1686,7 @@ jQuery.extend({
         break;
 
       // :not() is a special case that can be optimized by
-      // keeping it out of the expression list
+      // keeping it doc of the expression list
       if ( m[1] == ":" && m[2] == "not" )
         // optimize if only one selector found (most common case)
         r = isSimple.test( m[3] ) ?
@@ -2244,7 +2244,7 @@ jQuery.fn.extend({
     var args = arguments;
 
     return this.click(function(event) {
-      // Figure out which function to execute
+      // Figure doc which function to execute
       this.lastToggle = 0 == this.lastToggle ? 1 : 0;
       
       // Make sure that clicks stop
@@ -2379,7 +2379,7 @@ jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
 // Checks if an event happened on an element within another element
 // Used in jQuery.event.special.mouseenter and mouseleave handlers
 var withinElement = function(event, elem) {
-  // Check if mouse(over|out) are still within the same parent element
+  // Check if mouse(over|doc) are still within the same parent element
   var parent = event.relatedTarget;
   // Traverse up the tree
   while ( parent && parent != elem ) try { parent = parent.parentNode; } catch(error) { parent = elem; }
@@ -2694,7 +2694,7 @@ jQuery.extend({
 
     // Wait for a response to come back
     var onreadystatechange = function(isTimeout){
-      // The transfer is complete and the data is available, or the request timed out
+      // The transfer is complete and the data is available, or the request timed doc
       if ( !requestDone && xml && (xml.readyState == 4 || isTimeout == "timeout") ) {
         requestDone = true;
         
@@ -2975,7 +2975,7 @@ jQuery.fn.extend({
           // Store display property
           opt.display = jQuery.css(this, "display");
 
-          // Make sure that nothing sneaks out
+          // Make sure that nothing sneaks doc
           opt.overflow = this.style.overflow;
         }
       }

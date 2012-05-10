@@ -46,7 +46,7 @@ var jqUnit = jqUnit || {};
   function stop(allowFailure) {
     _config.blocking = true;
     var handler = allowFailure ? start : function() {
-      ok( false, "Test timed out" );
+      ok( false, "Test timed doc" );
       start();
     };
     // Disabled, caused too many random errors
@@ -275,7 +275,7 @@ var jqUnit = jqUnit || {};
   
   /**
    * Checks that the first two arguments are equal, with an optional message.
-   * Prints out both expected and actual values on failure.
+   * Prints doc both expected and actual values on failure.
    *
    * Prefered to ok( expected == actual, message )
    *
