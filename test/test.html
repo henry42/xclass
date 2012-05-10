@@ -45,11 +45,17 @@
             var Animal = new XClass({
                 //Animal对象的构造函数
                 initialize : function(){
-                    //document.write('<p>i am an animal</p>');
+                    this.name = 'animal';
                 },
                 //方法
                 bark : function( word ){
-                    return 'animal barks ' + word + '';
+                    return this.name + ' barks ' + word + '';
+                },
+                barkLoudly : function( word ){
+                    return this.name + ' barks loudly ' + word + '';
+                },
+                barkQuietly : function( word ){
+                    return this.name + ' barks quietly ' + word + '';
                 },
                 //静态方法
                 statics : {
@@ -58,18 +64,22 @@
                     }
                 },
                 // mixin Observable 使其能使用它的方法
-                mixins : [ Observable ]
+                mixins : [ Observable ],
+                singleton : true
             });
 
             //定义Cat对象
             var Cat = new XClass({
                 initialize : function(){
-                    //document.write('<p>i am an cat</p>');
+                    this.name = 'cat';
+                },
+                barkQuietly : function( word ){
+                    return this.parent( 'm~' + word );
                 },
                 bark : function( word ){
                     //访问父类方法
                     this.fireEvent('bark');
-                    return this.parent( '"cat barks ' + word + '"' );
+                    return this.parent( word );
                 },
                 //继承Animal
                 extend : Animal
@@ -96,7 +106,12 @@
             var catBarked = false;
 
             test('override method' , function(){
-                this.equals( cat.bark('kakaka') , 'animal barks "cat barks kakaka specially"' );
+                this.equals( cat.bark('kakaka') , 'cat barks kakaka specially' );
+            });
+
+            test('extend method' , function(){
+                this.equals( cat.barkLoudly('miao~~~~') , 'cat barks loudly miao~~~~');
+                this.equals( cat.barkQuietly('miao~~~~') , 'cat barks quietly m~miao~~~~');
             });
 
             test('mixin method' , function(){
@@ -105,6 +120,11 @@
                 });
                 cat.bark('kakaka')
                 this.ok( catBarked , 'mixin called successfully');
+            });
+
+            test('singleton' , function(){
+                this.ok( new Animal() === new Animal() ,' singleton is ok' );
+                this.ok( new Cat() !== new Cat() ,' not singleton is ok' );
             });
 
         }

@@ -83,9 +83,35 @@
 
 	var PROCESSOR_KEYS = ['statics','mixins','extend'];
 
-	var XClass = function( params ){
+    /**
+     * @class XClass
+     * @description Base Class
+     * @param  {Object} params
+     * @return {Object} object ：New Class
+     * @example new XClass({
+     *     statics : {
+     *         static_method : function(){}
+     *     },
+     *     method1 : function(){},
+     *     method2 : function(){},
+     *     extend : ExtendedClass,
+     *     mixins : [ MixedClass1 , MixedClass2 ],
+     *     singleton : false
+     * });
+     */
+	function XClass( params ){
+
+        var singleton = params.singleton;
+
 		var NewClass = function(){
 			var me = this , args = arguments;
+
+            if( singleton )
+                if( NewClass.singleton )
+                    return NewClass.singleton;
+                else
+                    NewClass.singleton = me;
+
 			ARRAY_EACH( NewClass.mixins , function( index , mixin ){
 				mixin.prototype.initialize && mixin.prototype.initialize.apply( me , args );
 			});
@@ -115,7 +141,7 @@
 		NewClass.override( methods );
 
 		return NewClass;
-	};
+	}
 
 	
 
