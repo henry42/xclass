@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr" id="html">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Test Title Goes Here</title>
+    <link rel="Stylesheet" media="screen" href="testsuite.css"/>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jqUnit.js"></script>
+    <script type="text/javascript" src="../XClass.js"></script>
+    <script>
+
+        with( jqUnit ){
+
+            module('XClass');
+
+            /*
+             观察者，可以被mixin
+             */
+            var Observable = new XClass({
+                //一旦被mixin，对象初始化时，initialize方法会被调用
+                initialize : function(){
+                    this.events = {};
+                },
+                //绑定事件
+                on : function( name , func ){
+                    if( !this.events[ name ] )
+                        this.events[ name ] = [ func ];
+                    else
+                        this.events[ name ].push( func );
+                },
+                //解绑
+                un : function( name , func ){
+                    //TODO
+                },
+                //触发事件
+                fireEvent : function( name , opts ){
+                    if( !this.events[ name ] )
+                        return;
+                    for( var i = 0 , func ; func = this.events[ name ][i] ; i++ )
+                        func.apply( this , opts || [] );
+                }
+            });
+
+            //定义Animal对象
+            var Animal = new XClass({
+                //Animal对象的构造函数
+                initialize : function(){
+                    //document.write('<p>i am an animal</p>');
+                },
+                //方法
+                bark : function( word ){
+                    return 'animal barks ' + word + '';
+                },
+                //静态方法
+                statics : {
+                    bark : function(){
+                        return 'animal static barks';
+                    }
+                },
+                // mixin Observable 使其能使用它的方法
+                mixins : [ Observable ]
+            });
+
+            //定义Cat对象
+            var Cat = new XClass({
+                initialize : function(){
+                    //document.write('<p>i am an cat</p>');
+                },
+                bark : function( word ){
+                    //访问父类方法
+                    this.fireEvent('bark');
+                    return this.parent( '"cat barks ' + word + '"' );
+                },
+                //继承Animal
+                extend : Animal
+            });
+
+            //对象提供override，可以完全复写对象的方法
+            Cat.override({
+                bark : function( word ){
+                    //访问被覆盖的方法
+                    return this.overridden( word  + ' specially');
+                }
+            });
+
+            test('static method' , function(){
+                this.equals( Animal.bark() , 'animal static barks');
+            });
+
+            test('method' , function(){
+                this.equals( new Animal().bark('ao~~~~~') , 'animal barks ao~~~~~' );
+            });
+
+
+            var cat = new Cat();
+            var catBarked = false;
+
+            test('override method' , function(){
+                this.equals( cat.bark('kakaka') , 'animal barks "cat barks kakaka specially"' );
+            });
+
+            test('mixin method' , function(){
+                cat.on('bark' , function(){
+                    catBarked = true;
+                });
+                cat.bark('kakaka')
+                this.ok( catBarked , 'mixin called successfully');
+            });
+
+        }
+    </script>
+  </head>
+  <body id="body">
+    <h1 id="header">XClass Test</h1>
+		
+    <h2 id="banner"></h2>
+		
+    <h2 id="userAgent"></h2>
+		
+    <!-- Test HTML -->
+    <div id="main" style="display: none;">
+      <form id="test-form">
+        <input/>
+      </form>
+      <div id="ajax">
+        
+      </div>
+    </div>
+    <ol id="tests"></ol>
+  </body>
+</html>
