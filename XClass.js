@@ -147,4 +147,9 @@
 
 	w.XClass = XClass;
 
+    // amd support
+    if( typeof define === 'function' && define.amd ){
+        define('xclass',[],function(){ return XClass; } );
+    }
+
 })(window);
