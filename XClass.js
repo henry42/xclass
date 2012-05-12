@@ -11,16 +11,9 @@
 			func.call( scope || w , i , obj[i] );
 	};
 
-	var EXTEND_CALLER = function( params , overriden ){
+	var EXTEND_CALLER = function( params ){
 		OBJECT_EACH( params , function( name , value  ){
-			var prev;
-			if( this.fn[ name ] ){
-				if( overriden === false )
-					return;
-				else
-					prev = this.fn[ name ];
-			}
-
+			var prev = this.fn[ name ];
 			this.fn[ name ] = value;
 			value.$name = name;
 			value.$owner = this;
@@ -35,7 +28,7 @@
 
 	var MIXIN_CALLER = function( obj ){
 		this.mixins.push( obj );
-		EXTEND_CALLER.call( this , obj.fn , false  );
+		EXTEND_CALLER.call( this , obj.fn  );
 	};
 
 	var OVERRIDDEN_CALLER = function(){
@@ -148,8 +141,7 @@
 	w.XClass = XClass;
 
     // amd support
-    if( typeof define === 'function' && define.amd ){
+    if( typeof define === 'function' && define.amd )
         define('xclass',[],function(){ return XClass; } );
-    }
 
 })(window);
