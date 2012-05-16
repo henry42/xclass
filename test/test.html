@@ -86,7 +86,7 @@
             });
 
             //对象提供override，可以完全复写对象的方法
-            Cat.override({
+            Cat.implement({
                 bark : function( word ){
                     //访问被覆盖的方法
                     return this.overridden( word  + ' specially');
@@ -94,7 +94,8 @@
             });
 
             test('static method' , function(){
-                this.equals( Animal.bark() , 'animal static barks');
+                this.equals( Animal.bark() , 'animal static barks','Animal static method');
+                this.equals( Cat.bark() , 'animal static barks','Cat static method');
             });
 
             test('method' , function(){
