@@ -6,9 +6,11 @@
 				func.call( scope || w , x , obj[x] );
 	};
 
-	var ARRAY_EACH = function( obj , func , scope ){
+	var ARRAY_EACH = Array.prototype.forEach ? function( obj , func ){
+        Array.prototype.forEach.call( obj || [] , func );
+    } :  function( obj , func ){
 		for( var i = 0 , len = obj && obj.length || 0 ; i < len ; i++ )
-			func.call( scope || w , obj[i] , i );
+			func.call( window , obj[i] , i );
 	};
 
 	var EXTEND = function( params , canOverride , keepHandler ){
@@ -25,45 +27,69 @@
 	};
 
 
+    /**
+     * @class XNative
+     * @description Base Class , All classes in XClass inherit from XNative
+     */
 
-   var XNative = function( params ){
+    var XNative = function( params ){
 
-   };
+    };
 
+    /**
+     * @description mixin
+     * @static
+     * @param XNative
+     * @return self
+     */
     XNative.mixin = function( object ){
         this.mixins.push( object );
         this.implement( object.prototype );
+        return this;
     };
 
+    /**
+     * @description implement functions
+     * @static
+     * @param object
+     * @return self
+     */
     XNative.implement = function( params ){
         EXTEND.call( this , params , true , true );
+        return this;
     };
 
-    XNative.prototype = {
-        overridden : function(){
-            var caller = this.overridden.caller;
-            if( !caller.$prev )
-                throw('no overridden method');
+
+    /**
+     * @description call overridden function
+     * @return {Object}
+     */
+    XNative.prototype.overridden = function(){
+        var caller = this.overridden.caller;
+        if( !caller.$prev )
+            throw('no overridden method');
+        else
+            return caller.$prev.apply( this , arguments );
+    };
+
+    /**
+     * @description call super class's function
+     * @return {Object}
+     */
+    XNative.prototype.parent = function(){
+        var caller = this.parent.caller , superClass = caller.$owner && caller.$owner.superclass , name = caller.$name;
+        if( !superClass )
+            throw('no super class');
+        else{
+            if( !name )
+                throw('unknown method name');
+            else if( !superClass.prototype[ name ] )
+                throw('super class has no ' + name + ' method');
             else
-                return caller.$prev.apply( this , arguments );
-        },
-        parent : function(){
-            var caller = this.parent.caller , superClass = caller.$owner && caller.$owner.superclass , name = caller.$name;
-            if( !superClass )
-                throw('no super class');
-            else{
-                if( !name )
-                    throw('unknown method name');
-                else if( !superClass.prototype[ name ] )
-                    throw('super class has no ' + name + ' method');
-                else
-                    return superClass.prototype[ name ].apply( this , arguments );
-            }
+                return superClass.prototype[ name ].apply( this , arguments );
         }
     };
 
-
-	
 	var PROCESSOR = {
 		'statics' : function( newClass , methods  ){
 			OBJECT_EACH( methods , function( k , v ){
@@ -102,7 +128,7 @@
 
     /**
      * @class XClass
-     * @description Base Class
+     * @description Class Factory
      * @param  {Object} params
      * @return {Object} object ：New Class
      * @example new XClass({
@@ -152,7 +178,7 @@
 		return NewClass;
 	}
 
-	
+    XClass.forEach = ARRAY_EACH;
 
 	w.XClass = XClass;
 
