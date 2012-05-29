@@ -7,6 +7,7 @@
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="jqUnit.js"></script>
     <script type="text/javascript" src="../XClass.js"></script>
+    <script type="text/javascript" src="../XUtils.js"></script>
     <script>
 
         with( jqUnit ){
@@ -126,6 +127,36 @@
             test('singleton' , function(){
                 this.ok( new Animal() === new Animal() ,' singleton is ok' );
                 this.ok( new Cat() !== new Cat() ,' not singleton is ok' );
+            });
+
+
+            module('XUtils');
+
+            test('typeof' , function(){
+                this.equals( 'number' , XUtils.typeOf(1) , 'number type');
+                this.equals( 'number' , XUtils.typeOf(1/0) , 'NaN type');
+                this.equals( 'object' , XUtils.typeOf({}) , 'object type');
+                this.equals( 'string' , XUtils.typeOf("2") , 'number type');
+                this.equals( 'regexp' , XUtils.typeOf(/a/) , 'regexp type');
+                this.equals( 'function' , XUtils.typeOf(function(){}) , 'function type');
+            });
+
+            test('clone' , function(){
+                var a = {
+                    b : { c : new Date(),
+                          d : document.getElementsByTagName('div')[0],
+                          e : [ {} , 1 ]
+                    }
+                };
+
+                var cloneA = XUtils.clone( a );
+
+                this.ok( a !== cloneA , 'self is not equal' );
+                this.ok(a.b !== cloneA.b , 'members are not equal' );
+                this.ok(a.b.c.getTime() === cloneA.b.c.getTime() && a.b.c !==  cloneA.b.c , 'clone time is ok' );
+                this.ok(a.b.d !== cloneA.b.d , 'clone node is ok' );
+                this.ok(a.b.e.length == cloneA.b.e.length , 'clone array is ok' );
+                this.ok(a.b.e[0] !== cloneA.b.e[0] , 'clone array\'s members are not equal' );
             });
 
         }

@@ -10,7 +10,7 @@
                 if( object == null )
                     return object;
 
-                var type = this.typeOf( object );
+                var type = XUtils.typeOf( object );
 
                 if( object.nodeType && object.cloneNode )
                     return object.cloneNode( true );
@@ -20,14 +20,14 @@
                         return new Date( object.getTime() );
                     case 'array':
                         var c = [];
-                        this.forEach( object , function( o , i ){
-                            c[ i ] = this.clone( o );
+                        XUtils.array.forEach( object , function( o , i ){
+                            c[ i ] = XUtils.clone( o );
                         });
                         return c;
                     case 'object':
                         var c = {};
-                        this.object.each( object , function( k , v ){
-                            c[ k ] = this.clone( v );
+                        XUtils.object.each( object , function( k , v ){
+                            c[ k ] = XUtils.clone( v );
                         } );
                         return c;
                     default :
@@ -35,10 +35,10 @@
                 }
             },
             object : {
-                each : XClass.object.each
+                each : XClass.utils.object.each
             },
             array : {
-                forEach : XClass.array.forEach
+                forEach : XClass.utils.array.forEach
             }
         }
     });
