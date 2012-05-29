@@ -1,17 +1,26 @@
 (function( w ){
 
-	var OBJECT_EACH = function( obj , func , scope ){
-		for( var x in obj  )
-			if( obj.hasOwnProperty(x) )
-				func.call( scope || w , x , obj[x] );
-	};
 
-	var ARRAY_EACH = Array.prototype.forEach ? function( obj , func ){
-        Array.prototype.forEach.call( obj || [] , func );
-    } :  function( obj , func ){
-		for( var i = 0 , len = obj && obj.length || 0 ; i < len ; i++ )
-			func.call( window , obj[i] , i );
-	};
+    var utils = {
+        object : {
+            each : function( obj , func , scope ){
+                for( var x in obj  )
+                    if( obj.hasOwnProperty(x) )
+                        func.call( scope || w , x , obj[x] );
+            }
+        },
+        array : {
+            forEach : Array.prototype.forEach ? function( obj , func ){
+                Array.prototype.forEach.call( obj || [] , func );
+            } :  function( obj , func ){
+                for( var i = 0 , len = obj && obj.length || 0 ; i < len ; i++ )
+                    func.call( window , obj[i] , i );
+            }
+        }
+    };
+
+    var OBJECT_EACH = utils.object.each;
+    var ARRAY_EACH = utils.array.each;
 
 	var EXTEND = function( params , canOverride , keepHandler ){
 		OBJECT_EACH( params , function( name , value  ){
@@ -178,7 +187,7 @@
 		return NewClass;
 	}
 
-    XClass.forEach = ARRAY_EACH;
+    XClass.utils = utils;
 
 	w.XClass = XClass;
 
