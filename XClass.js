@@ -21,7 +21,6 @@
 
     var OBJECT_EACH = utils.object.each;
     var ARRAY_EACH = utils.array.each;
-
 	var EXTEND = function( params , canOverride , keepHandler ){
 		OBJECT_EACH( params , function( name , value  ){
 			var prev = this.prototype[ name ];
