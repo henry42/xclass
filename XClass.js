@@ -13,14 +13,18 @@
             func.call(window, obj[i], i);
     };
 
-    var extend = function (params) {
+    var extend = function (params , notOverridden ) {
         objectEach(params, function (name, value) {
             var prev = this[ name ];
+            if( prev && notOverridden === true )
+                return;
             this[ name ] = value;
-            value.$name = name;
-            value.$owner = this;
-            if (prev)
-                value.$prev = prev;
+            if( typeof value === 'function' ){
+                value.$name = name;
+                value.$owner = this;
+                if ( prev )
+                    value.$prev = prev;
+            }
         }, this);
     };
 
@@ -55,7 +59,9 @@
      */
     XNative.mixin = function (object) {
         this.mixins.push(object);
-        this.implement(object.prototype);
+        extend.call(this.prototype, object.prototype , true );
+
+
         return this;
     };
 
@@ -108,7 +114,8 @@
             var superClass = superClass || XNative , prototype = newClass.prototype , superPrototype = superClass.prototype;
 
             //process mixins
-            newClass.mixins = [];
+            var mixins = newClass.mixins = [];
+
             if (superClass.mixins)
                 newClass.mixins.push.apply(newClass.mixins, superClass.mixins);
 
@@ -154,17 +161,23 @@
 
         var singleton = params.singleton;
 
-        var NewClass = function () {
+        var XClass = function () {
             var me = this , args = arguments;
 
             if (singleton)
-                if (NewClass.singleton)
-                    return NewClass.singleton;
+                if (XClass.singleton)
+                    return XClass.singleton;
                 else
-                    NewClass.singleton = me;
+                    XClass.singleton = me;
 
-            arrayEach(NewClass.mixins, function (mixin) {
+            me.mixins = {};
+
+            arrayEach(XClass.mixins, function (mixin) {
                 mixin.prototype.initialize && mixin.prototype.initialize.apply(me, args);
+
+                if( mixin.prototype.name )
+                    me.mixins[ mixin.prototype.name ] = mixin.prototype;
+
             });
             return me.initialize && me.initialize.apply(me, arguments) || me;
         };
@@ -173,7 +186,7 @@
         var methods = {};
 
         arrayEach(PROCESSOR_KEYS, function (key) {
-            PROCESSOR[ key ](NewClass, params[ key ], key);
+            PROCESSOR[ key ](XClass, params[ key ], key);
         });
 
         objectEach(params, function (k, v) {
@@ -181,9 +194,9 @@
                 methods[ k ] = v;
         });
 
-        extend.call(NewClass.prototype, methods);
+        extend.call(XClass.prototype, methods);
 
-        return NewClass;
+        return XClass;
     }
 
     XClass.utils = {
