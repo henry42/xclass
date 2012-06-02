@@ -86,34 +86,41 @@
                 extend : Animal
             });
 
-            //对象提供override，可以完全复写对象的方法
+            //对象提供parent，可以完全复写对象的方法
             Cat.implement({
                 bark : function( word ){
                     //访问被覆盖的方法
-                    return this.overridden( word  + ' specially');
+                    return this.parent( word  + ' specially');
                 }
             });
 
             test('static method' , function(){
-                this.equals( Animal.bark() , 'animal static barks','Animal static method');
-                this.equals( Cat.bark() , 'animal static barks','Cat static method');
+                this.equals( Animal.bark() , 'animal static barks','static method runs okay');
+                this.equals( Cat.bark() , 'animal static barks','static method on extended class runs okay');
             });
 
             test('method' , function(){
-                this.equals( new Animal().bark('ao~~~~~') , 'animal barks ao~~~~~' );
+                this.equals( new Animal().bark('ao~~~~~') , 'animal barks ao~~~~~','instance method runs okay' );
             });
 
 
             var cat = new Cat();
+            var cat2 = new Cat();
             var catBarked = false;
 
             test('override method' , function(){
-                this.equals( cat.bark('kakaka') , 'cat barks kakaka specially' );
+                cat2.implement({
+                    bark : function( word ){
+                        return this.parent( word + ' from cat2');
+                    }
+                });
+                this.equals( cat.bark('kakaka') , 'cat barks kakaka specially' , 'override class method runs okay' );
+                this.equals( cat2.bark('kakaka') , 'cat barks kakaka from cat2 specially' , 'override instance method runs okay' );
             });
 
             test('extend method' , function(){
-                this.equals( cat.barkLoudly('miao~~~~') , 'cat barks loudly miao~~~~');
-                this.equals( cat.barkQuietly('miao~~~~') , 'cat barks quietly m~miao~~~~');
+                this.equals( cat.barkLoudly('miao~~~~') , 'cat barks loudly miao~~~~' , 'method on extend class runs okay');
+                this.equals( cat.barkQuietly('miao~~~~') , 'cat barks quietly m~miao~~~~','method on extend class runs okay');
             });
 
             test('mixin method' , function(){

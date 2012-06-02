@@ -1,29 +1,40 @@
-(function (w) {
+(function (global) {
 
-    var OBJECT_EACH = function (obj, func, scope) {
+    var objectEach = function (obj, func, scope) {
         for (var x in obj)
             if (obj.hasOwnProperty(x))
-                func.call(scope || w, x, obj[x]);
+                func.call(scope || global, x, obj[x]);
     };
 
-    var ARRAY_EACH = Array.prototype.forEach ? function (obj, func) {
+    var arrayEach = Array.prototype.forEach ? function (obj, func) {
         Array.prototype.forEach.call(obj || [], func);
     } : function (obj, func) {
         for (var i = 0 , len = obj && obj.length || 0; i < len; i++)
             func.call(window, obj[i], i);
     };
 
-    var EXTEND = function (params, canOverride, keepHandler) {
-        OBJECT_EACH(params, function (name, value) {
-            var prev = this.prototype[ name ];
-            if (prev && !canOverride)
-                return;
-            this.prototype[ name ] = value;
+    var extend = function (params) {
+        objectEach(params, function (name, value) {
+            var prev = this[ name ];
+            this[ name ] = value;
             value.$name = name;
             value.$owner = this;
-            if (prev && keepHandler)
+            if (prev)
                 value.$prev = prev;
         }, this);
+    };
+
+    var ns = function (name) {
+        var part = global,
+            parts = name && name.split('.') || [];
+
+        arrayEach(parts, function (partName) {
+            if (partName) {
+                part = part[ partName ] || ( part[ partName ] = {});
+            }
+        });
+
+        return part;
     };
 
 
@@ -49,50 +60,47 @@
     };
 
     /**
-     * @description implement functions
+     * @description implement functions to class
      * @static
      * @param object
      * @return self
      */
     XNative.implement = function (params) {
-        EXTEND.call(this, params, true, true);
+        extend.call(this.prototype, params);
         return this;
     };
 
 
     /**
-     * @description call overridden function
-     * @return {Object}
+     * @description implement functions to instance
+     * @static
+     * @param object
+     * @return self
      */
-    XNative.prototype.overridden = function () {
-        var caller = this.overridden.caller;
-        if (!caller.$prev)
-            throw('no overridden method');
-        else
-            return caller.$prev.apply(this, arguments);
+
+    XNative.prototype.implement = function (params) {
+        extend.call(this, params);
+        return this;
     };
+
 
     /**
      * @description call super class's function
      * @return {Object}
      */
     XNative.prototype.parent = function () {
-        var caller = this.parent.caller , superClass = caller.$owner && caller.$owner.superclass , name = caller.$name;
-        if (!superClass)
-            throw('no super class');
+        var caller = this.parent.caller ,
+            func = caller.$prev;
+        if (!func)
+            throw new Error('can not call parent');
         else {
-            if (!name)
-                throw('unknown method name');
-            else if (!superClass.prototype[ name ])
-                throw('super class has no ' + name + ' method');
-            else
-                return superClass.prototype[ name ].apply(this, arguments);
+            return func.apply(this, arguments);
         }
     };
 
     var PROCESSOR = {
         'statics':function (newClass, methods) {
-            OBJECT_EACH(methods, function (k, v) {
+            objectEach(methods, function (k, v) {
                 newClass[ k ] = v;
             });
         },
@@ -105,12 +113,12 @@
                 newClass.mixins.push.apply(newClass.mixins, superClass.mixins);
 
             //process statics
-            OBJECT_EACH(superClass, function (k, v) {
+            objectEach(superClass, function (k, v) {
                 newClass[ k ] = v;
             })
 
             //process prototype
-            OBJECT_EACH(superPrototype, function (k, v) {
+            objectEach(superPrototype, function (k, v) {
                 prototype[ k ] = v;
             });
 
@@ -118,7 +126,7 @@
         },
         'mixins':function (newClass, value) {
 
-            ARRAY_EACH(value, function (v) {
+            arrayEach(value, function (v) {
                 newClass.mixin(v);
             });
         }
@@ -155,7 +163,7 @@
                 else
                     NewClass.singleton = me;
 
-            ARRAY_EACH(NewClass.mixins, function (mixin) {
+            arrayEach(NewClass.mixins, function (mixin) {
                 mixin.prototype.initialize && mixin.prototype.initialize.apply(me, args);
             });
             return me.initialize && me.initialize.apply(me, arguments) || me;
@@ -164,30 +172,41 @@
 
         var methods = {};
 
-        ARRAY_EACH(PROCESSOR_KEYS, function (key) {
+        arrayEach(PROCESSOR_KEYS, function (key) {
             PROCESSOR[ key ](NewClass, params[ key ], key);
         });
 
-        OBJECT_EACH(params, function (k, v) {
+        objectEach(params, function (k, v) {
             if (!PROCESSOR[ k ])
                 methods[ k ] = v;
         });
 
-        EXTEND.call(NewClass, methods, true, false);
+        extend.call(NewClass.prototype, methods);
 
         return NewClass;
     }
 
     XClass.utils = {
         object:{
-            each:OBJECT_EACH
+            each:objectEach
         },
         array:{
-            forEach:ARRAY_EACH
-        }
+            forEach:arrayEach
+        },
+        ns:ns
     };
 
-    w.XClass = XClass;
+    XClass.define = function (className, params) {
+
+        var lastIndex = className && className.lastIndexOf('.') || -1;
+        if (lastIndex !== -1) {
+            return ns(className.substr(0, lastIndex))[ className.substr(lastIndex + 1) ] = new XClass(params);
+        } else
+            throw new Error('wrong class name : ' + className);
+
+    };
+
+    global.XClass = XClass;
 
     // amd support
     if (typeof define === 'function' && define.amd)

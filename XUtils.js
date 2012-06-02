@@ -39,7 +39,16 @@
             },
             array : {
                 forEach : XClass.utils.array.forEach
-            }
+            },
+            each : function( object , func ){
+                if( XUtils.typeOf(object) === 'array' )
+                    XUtils.array.forEach( object , func );
+                else
+                    XUtils.object.each( object , func );
+            },
+            ns : XClass.utils.ns,
+
+            namespace : XClass.utils.ns
         }
     });
 
