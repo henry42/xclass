@@ -211,7 +211,7 @@
 
     XClass.define = function (className, params) {
         if( className ){
-            var lastIndex = className && className.lastIndexOf('.') || -1 , newClass;
+            var lastIndex = className.lastIndexOf('.') , newClass;
             return ns(lastIndex === -1 ? null : className.substr(0, lastIndex))[ className.substr(lastIndex + 1) ] = new XClass(params);
         }else
             throw new Error('empty class name!');
