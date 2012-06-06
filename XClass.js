@@ -150,7 +150,7 @@
 
     /**
      * @class XClass
-     * @desc Class Factory
+     * @classdesc Class Factory
      * @param  {Object} params
      * @returns {XNative} The new Class
      * @example new XClass({
