@@ -35,10 +35,10 @@
                 }
             },
             object : {
-                each : XClass.utils.object.each
+                each : XClass.utils.objectEach
             },
             array : {
-                forEach : XClass.utils.array.forEach
+                forEach : XClass.utils.arrayEach
             },
             each : function( object , func ){
                 if( XUtils.typeOf(object) === 'array' )

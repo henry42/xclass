@@ -1,9 +1,9 @@
 (function (global) {
 
-    var objectEach = function (obj, func, scope) {
+    var objectEach = function (obj, fn, scope) {
         for (var x in obj)
             if (obj.hasOwnProperty(x))
-                func.call(scope || global, x, obj[x]);
+                fn.call(scope || global, x, obj[x]);
     };
 
     var arrayEach = Array.prototype.forEach ? function (obj, func) {
@@ -13,16 +13,16 @@
             func.call(window, obj[i], i);
     };
 
-    var extend = function (params , notOverridden ) {
+    var extend = function (params, notOverridden) {
         objectEach(params, function (name, value) {
             var prev = this[ name ];
-            if( prev && notOverridden === true )
+            if (prev && notOverridden === true)
                 return;
             this[ name ] = value;
-            if( typeof value === 'function' ){
+            if (typeof value === 'function') {
                 value.$name = name;
                 value.$owner = this;
-                if ( prev )
+                if (prev)
                     value.$prev = prev;
             }
         }, this);
@@ -44,7 +44,9 @@
 
     /**
      * @class XNative
-     * @description Base Class , All classes in XClass inherit from XNative
+     * @name XNative
+     * @classdesc Base Class , All classes created by XClass inherit from XNative
+     * @param {Object} params The constructor parameters.
      */
 
     var XNative = function (params) {
@@ -52,24 +54,26 @@
     };
 
     /**
-     * @description mixin
-     * @static
-     * @param XNative
-     * @return self
+     * @name XNative.mixin
+     * @function
+     * @desc mixin
+     * @param {XNative} class
+     * @returns self
      */
     XNative.mixin = function (object) {
         this.mixins.push(object);
-        extend.call(this.prototype, object.prototype , true );
+        extend.call(this.prototype, object.prototype, true);
 
 
         return this;
     };
 
     /**
-     * @description implement functions to class
-     * @static
-     * @param object
-     * @return self
+     * @name XNative.implement
+     * @function
+     * @desc implement functions to class
+     * @param {Object} params
+     * @returns self
      */
     XNative.implement = function (params) {
         extend.call(this.prototype, params);
@@ -78,10 +82,11 @@
 
 
     /**
-     * @description implement functions to instance
-     * @static
-     * @param object
-     * @return self
+     * @name XNative#implement
+     * @function
+     * @desc implement functions to instance
+     * @param {Object} params
+     * @returns self
      */
 
     XNative.prototype.implement = function (params) {
@@ -91,8 +96,10 @@
 
 
     /**
-     * @description call super class's function
-     * @return {Object}
+     * @name XNative#parent
+     * @function
+     * @desc call super class's function having the same function name
+     * @returns {Object}
      */
     XNative.prototype.parent = function () {
         var caller = this.parent.caller ,
@@ -143,9 +150,9 @@
 
     /**
      * @class XClass
-     * @description Class Factory
+     * @desc Class Factory
      * @param  {Object} params
-     * @return {Object} object ：New Class
+     * @returns {XNative} The new Class
      * @example new XClass({
      *     statics : {
      *         static_method : function(){}
@@ -161,21 +168,21 @@
 
         var singleton = params.singleton;
 
-        var XClass = function () {
+        var XNative = function () {
             var me = this , args = arguments;
 
             if (singleton)
-                if (XClass.singleton)
-                    return XClass.singleton;
+                if (XNative.singleton)
+                    return XNative.singleton;
                 else
-                    XClass.singleton = me;
+                    XNative.singleton = me;
 
             me.mixins = {};
 
-            arrayEach(XClass.mixins, function (mixin) {
+            arrayEach(XNative.mixins, function (mixin) {
                 mixin.prototype.initialize && mixin.prototype.initialize.apply(me, args);
 
-                if( mixin.prototype.name )
+                if (mixin.prototype.name)
                     me.mixins[ mixin.prototype.name ] = mixin.prototype;
 
             });
@@ -186,7 +193,7 @@
         var methods = {};
 
         arrayEach(PROCESSOR_KEYS, function (key) {
-            PROCESSOR[ key ](XClass, params[ key ], key);
+            PROCESSOR[ key ](XNative, params[ key ], key);
         });
 
         objectEach(params, function (k, v) {
@@ -194,26 +201,55 @@
                 methods[ k ] = v;
         });
 
-        extend.call(XClass.prototype, methods);
+        extend.call(XNative.prototype, methods);
 
-        return XClass;
+        return XNative;
     }
 
+    /**
+     * @namespace XClass.utils
+     * */
     XClass.utils = {
-        object:{
-            each:objectEach
-        },
-        array:{
-            forEach:arrayEach
-        },
+        /**
+         * @name XClass.utils.objectEach
+         * @function
+         * @desc Iterates through an object and invokes the given callback function for each iteration
+         * @param {Object} object  The object ot iterate
+         * @param {Function} fn  The callback function
+         * @param {Object} scope  The scope for the callback function (point to this)
+         */
+        objectEach:objectEach,
+        /**
+         * @name XClass.utils.arrayEach
+         * @function
+         * @desc Iterates an array and invokes the given callback function for each iteration , It will call Array.prototype.forEach if supported
+         * @param {Array} object  The array ot iterate
+         * @param {Function} fn  The callback function
+         */
+        arrayEach:arrayEach,
+        /**
+         * @name XClass.utils.ns
+         * @function
+         * @desc Creates namespaces to be used for scoping variables
+         * @param {String} name  dot-namespaced format namespaces, for example: 'Myapp.package'
+         * @returns {Object} object The namespace object, if name is null , it returns the global
+         */
         ns:ns
     };
 
+    /**
+     * @name XClass.define
+     * @desc define a class
+     * @param {String} className The class name to create in string dot-namespaced format, for example: 'Myapp.MyClass'
+     * @param {Object} params The parameters for the new Class
+     * @returns {XNative} The XNative Class
+     */
+
     XClass.define = function (className, params) {
-        if( className ){
+        if (className) {
             var lastIndex = className.lastIndexOf('.') , newClass;
             return ns(lastIndex === -1 ? null : className.substr(0, lastIndex))[ className.substr(lastIndex + 1) ] = new XClass(params);
-        }else
+        } else
             throw new Error('empty class name!');
     };
 
