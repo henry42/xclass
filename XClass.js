@@ -2,8 +2,7 @@
 
     var objectEach = function (obj, fn ) {
         for (var x in obj)
-            if (obj.hasOwnProperty(x))
-                fn.call( global, x, obj[x] );
+            fn.call( global, x, obj[x] );
     };
 
     var arrayEach = Array.prototype.forEach ? function (obj, func) {
@@ -65,19 +64,8 @@
      * @returns self
      */
 
-    XNative.mixin = function ( mixinClass ) {
-        var name = '' , prototype = this.prototype;
-
-        if( typeof mixinClass === 'object' ){
-            name = mixinClass.name;
-            mixinClass = mixinClass.mixin;
-        }
-
+    XNative.mixin = function ( mixinClass , name  ) {
         this.mixins.push( { name : name , mixin : mixinClass } );
-
-        if( !name )
-            extend.call( prototype , mixinClass.prototype , true );
-
         return this;
     };
 
@@ -88,8 +76,8 @@
      * @param {Object} params
      * @returns self
      */
-    XNative.implement = function (params) {
-        extend.call(this.prototype, params);
+    XNative.implement = function ( params , safe ) {
+        extend.call(this.prototype, params , safe );
         return this;
     };
 
@@ -102,8 +90,8 @@
      * @returns self
      */
 
-    XNative.prototype.implement = function (params) {
-        extend.call(this, params);
+    XNative.prototype.implement = function ( params , safe ) {
+        extend.call(this, params , safe );
         return this;
     };
 
@@ -155,7 +143,10 @@
         },
         'mixins':function (newClass, value) {
             arrayEach(value, function (v) {
-                newClass.mixin(v);
+                if( typeof v === 'function')
+                    newClass.mixin( v );
+                else if( v.mixin )
+                    newClass.mixin( v.mixin , v.name )
             });
         }
     };
@@ -218,17 +209,17 @@
 
         arrayEach( mixins , function (mixin) {
 
-            var name = mixin.name , mixinClass = mixin.mixin;
+            var name = mixin.name ,
+                mixinClass = mixin.mixin ,
+                fn = function(){ return mixinClass.apply( this , args );};
 
-            if( name ){
-                var mixins = ns( 'mixins' , me ) , fn = function(){
-                    return mixinClass.apply( this , args )
-                };
-                fn.prototype = mixinClass.prototype;
-                mixins[ name ] = new fn();
-            }else{
-                mixinClass.prototype.initialize && mixinClass.prototype.initialize.apply( me , args);
-            }
+            fn.prototype = mixinClass.prototype;
+
+            if( name )
+                ns( 'mixins' , me )[ name ] = new fn();
+            else
+                me.implement( new fn() , true );
+
         });
 
         return me.initialize && me.initialize.apply(me, args ) || me;
