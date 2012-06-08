@@ -58,9 +58,13 @@
      * @name XNative.mixin
      * @function
      * @desc mixin
-     * @param {XNative} mixinClass
+     * @param {XNative|Object} mixinClass
+     * When mixin class is XNative , the mixin scope will be 'this' ( the mixed-in-instance )
+     * or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the mixin scope will be this.mixins.MixinClass
+     *
      * @returns self
      */
+
     XNative.mixin = function ( mixinClass ) {
         var name = '' , prototype = this.prototype;
 
@@ -240,8 +244,7 @@
          * @function
          * @desc Iterates through an object and invokes the given callback function for each iteration
          * @param {Object} object  The object ot iterate
-         * @param {Function} fn  The callback function
-         * @param {Object} scope  The scope for the callback function (point to this)
+         * @param {Function} The callback function
          */
         objectEach:objectEach,
         /**
@@ -249,7 +252,7 @@
          * @function
          * @desc Iterates an array and invokes the given callback function for each iteration , It will call Array.prototype.forEach if supported
          * @param {Array} object  The array ot iterate
-         * @param {Function} fn  The callback function
+         * @param {Function} The callback function
          */
         arrayEach:arrayEach,
         /**
@@ -257,7 +260,8 @@
          * @function
          * @desc Creates namespaces to be used for scoping variables
          * @param {String} name  dot-namespaced format namespaces, for example: 'Myapp.package'
-         * @returns {Object} object The namespace object, if name is null , it returns the global
+         * @param {Object} root  the root object, global if null
+         * @returns {Object} The namespace object, if name is null , it returns the root
          */
         ns:ns
     };
