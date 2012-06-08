@@ -231,7 +231,7 @@
             }
         });
 
-        return me.initialize && me.initialize.apply(me, arguments) || me;
+        return me.initialize && me.initialize.apply(me, args ) || me;
     }
 
 
