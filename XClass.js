@@ -1,35 +1,36 @@
 (function (global) {
 
-    var objectEach = function (obj, fn, scope) {
+    var objectEach = function (obj, fn ) {
         for (var x in obj)
             if (obj.hasOwnProperty(x))
-                fn.call(scope || global, x, obj[x]);
+                fn.call( global, x, obj[x] );
     };
 
     var arrayEach = Array.prototype.forEach ? function (obj, func) {
         Array.prototype.forEach.call(obj || [], func);
     } : function (obj, func) {
         for (var i = 0 , len = obj && obj.length || 0; i < len; i++)
-            func.call(window, obj[i], i);
+            func.call( global , obj[i], i);
     };
 
     var extend = function (params, notOverridden) {
+        var me = this;
         objectEach(params, function (name, value) {
-            var prev = this[ name ];
+            var prev = me[ name ];
             if (prev && notOverridden === true)
                 return;
-            this[ name ] = value;
+            me[ name ] = value;
             if (typeof value === 'function') {
                 value.$name = name;
                 value.$owner = this;
                 if (prev)
                     value.$prev = prev;
             }
-        }, this);
+        });
     };
 
-    var ns = function (name) {
-        var part = global,
+    var ns = function ( name , root ) {
+        var part = root || global,
             parts = name && name.split('.') || [];
 
         arrayEach(parts, function (partName) {
@@ -57,13 +58,21 @@
      * @name XNative.mixin
      * @function
      * @desc mixin
-     * @param {XNative} class
+     * @param {XNative} mixinClass
      * @returns self
      */
-    XNative.mixin = function (object) {
-        this.mixins.push(object);
-        extend.call(this.prototype, object.prototype, true);
+    XNative.mixin = function ( mixinClass ) {
+        var name = '' , prototype = this.prototype;
 
+        if( typeof mixinClass === 'object' ){
+            name = mixinClass.name;
+            mixinClass = mixinClass.mixin;
+        }
+
+        this.mixins.push( { name : name , mixin : mixinClass } );
+
+        if( !name )
+            extend.call( prototype , mixinClass.prototype , true );
 
         return this;
     };
@@ -120,11 +129,6 @@
         'extend':function (newClass, superClass) {
             var superClass = superClass || XNative , prototype = newClass.prototype , superPrototype = superClass.prototype;
 
-            //process mixins
-            var mixins = newClass.mixins = [];
-
-            if (superClass.mixins)
-                newClass.mixins.push.apply(newClass.mixins, superClass.mixins);
 
             //process statics
             objectEach(superClass, function (k, v) {
@@ -136,10 +140,16 @@
                 prototype[ k ] = v;
             });
 
+            //process mixins
+            var mixins = newClass.mixins = [];
+
+            if (superClass.mixins)
+                mixins.push.apply( mixins , superClass.mixins );
+
+
             newClass.superclass = prototype.superclass = superClass;
         },
         'mixins':function (newClass, value) {
-
             arrayEach(value, function (v) {
                 newClass.mixin(v);
             });
@@ -164,31 +174,15 @@
      *     singleton : false
      * });
      */
-    function XClass(params) {
 
-        var singleton = params.singleton;
 
-        var XNative = function () {
-            var me = this , args = arguments;
+    function XClass( params ){
 
-            if (singleton)
-                if (XNative.singleton)
-                    return XNative.singleton;
-                else
-                    XNative.singleton = me;
+        var params = params || {};
 
-            me.mixins = {};
-
-            arrayEach(XNative.mixins, function (mixin) {
-                mixin.prototype.initialize && mixin.prototype.initialize.apply(me, args);
-
-                if (mixin.prototype.name)
-                    me.mixins[ mixin.prototype.name ] = mixin.prototype;
-
-            });
-            return me.initialize && me.initialize.apply(me, arguments) || me;
+        var XNative = function(){
+            return _.call( this , XNative , params , arguments );
         };
-
 
         var methods = {};
 
@@ -205,6 +199,37 @@
 
         return XNative;
     }
+
+    function _( XNative , params , args ){
+
+        var me = this;
+
+        if ( params.singleton )
+            if (XNative.singleton)
+                return XNative.singleton;
+            else
+                XNative.singleton = me;
+
+        var mixins = XNative.mixins;
+
+        arrayEach( mixins , function (mixin) {
+
+            var name = mixin.name , mixinClass = mixin.mixin;
+
+            if( name ){
+                var mixins = ns( 'mixins' , me ) , fn = function(){
+                    return mixinClass.apply( this , args )
+                };
+                fn.prototype = mixinClass.prototype;
+                mixins[ name ] = new fn();
+            }else{
+                mixinClass.prototype.initialize && mixinClass.prototype.initialize.apply( me , args);
+            }
+        });
+
+        return me.initialize && me.initialize.apply(me, arguments) || me;
+    }
+
 
     /**
      * @namespace XClass.utils

@@ -19,7 +19,6 @@
              */
             var Observable = new XClass({
 
-                name : 'observable',
                 //一旦被mixin，对象初始化时，initialize方法会被调用
                 initialize : function(){
                     this.events = {};
@@ -66,19 +65,18 @@
                         return 'animal static barks';
                     }
                 },
-                unAll : function(){
-                    return;
-                },
-                callObservableUnAll : function(){
-                    this.mixins.observable.unAll.call( this );
-                },
-                // mixin Observable 使其能使用它的方法
-                mixins : [ Observable ],
+
                 singleton : true
             });
 
             //定义Cat对象
             var Cat = new XClass({
+
+                mixins : [ Observable ],
+
+                //继承Animal
+                extend : Animal,
+
                 initialize : function(){
                     this.name = 'cat';
                 },
@@ -89,9 +87,25 @@
                     //访问父类方法
                     this.fireEvent('bark');
                     return this.parent( word );
+                }
+
+            });
+
+            //定义
+            var Dog = new XClass({
+                extend : Animal,
+
+                mixins :[ { name : 'ob' , mixin : Observable } ],
+
+                on : function( name , func ){
+                    this.mixins.ob.on( name , func );
+                    return 'Dog on is called';
                 },
-                //继承Animal
-                extend : Animal
+
+                bark : function(){
+                    this.mixins.ob.fireEvent('bark');
+                    return '';
+                }
             });
 
             //对象提供parent，可以完全复写对象的方法
@@ -114,6 +128,7 @@
 
             var cat = new Cat();
             var cat2 = new Cat();
+            var dog = new Dog();
 
             test('override method' , function(){
                 cat2.implement({
@@ -132,31 +147,24 @@
 
             test('mixin method' , function(){
 
-                var catBarked = false;
+                var barked = false;
 
                 cat.on('bark' , function(){
-                    catBarked = true;
+                    barked = true;
                 });
                 cat.bark('kakaka')
-                this.ok( catBarked , 'mixin called successfully');
+                this.ok( barked , 'mixin called successfully');
 
-                catBarked = false;
+                barked = false;
 
-                cat.mixins.observable.on.call( cat , 'bark' , function(){
-                    catBarked = true;
-                });
-                cat.bark('kakaka')
-                this.ok( catBarked , 'mixin function called by name successfully');
+                this.equals(dog.on('bark' , function(){
+                    barked = true;
+                }),'Dog on is called','mixin function can not override class function');
 
-                catBarked = false;
-                cat.unAll();
-                cat.bark('kakaka')
-                this.ok( catBarked , 'mixin function can not override class function');
+                dog.bark('kakaka');
 
-                catBarked = false;
-                cat.callObservableUnAll();
-                cat.bark('kakaka')
-                this.ok( !catBarked , 'mixin function called by name on extended class successfully');
+                this.ok( barked , 'mixin function called by name successfully');
+
             });
 
             test('singleton' , function(){
@@ -193,6 +201,7 @@
                 this.ok(a.b.e.length == cloneA.b.e.length , 'clone array is ok' );
                 this.ok(a.b.e[0] !== cloneA.b.e[0] , 'clone array\'s members are not equal' );
             });
+
 
         }
     </script>
