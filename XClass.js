@@ -1,15 +1,15 @@
 (function (global) {
 
-    var objectEach = function (obj, fn ) {
+    var objectEach = function (obj, fn , scope  ) {
         for (var x in obj)
-            fn.call( global, x, obj[x] );
+            fn.call( scope, x, obj[x] );
     };
 
-    var arrayEach = Array.prototype.forEach ? function (obj, func) {
-        Array.prototype.forEach.call(obj || [], func);
-    } : function (obj, func) {
+    var arrayEach = Array.prototype.forEach ? function (array, fn ,scope) {
+        return array.forEach( fn ,scope )
+    } : function (obj, fn , scope) {
         for (var i = 0 , len = obj && obj.length || 0; i < len; i++)
-            func.call( global , obj[i], i);
+            fn.call( scope , obj[i], i);
     };
 
     var extend = function (params, notOverridden) {
@@ -142,12 +142,13 @@
             newClass.superclass = prototype.superclass = superClass;
         },
         'mixins':function (newClass, value) {
-            arrayEach(value, function (v) {
-                if( typeof v === 'function')
-                    newClass.mixin( v );
-                else if( v.mixin )
-                    newClass.mixin( v.mixin , v.name )
-            });
+            if( value )
+                arrayEach(value, function (v) {
+                    if( typeof v === 'function')
+                        newClass.mixin( v );
+                    else if( v.mixin )
+                        newClass.mixin( v.mixin , v.name )
+                });
         }
     };
 
