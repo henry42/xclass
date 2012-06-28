@@ -178,10 +178,10 @@
         var params = params || {};
 
         var XNative = function(){
-            return _.call( this , XNative , params , arguments );
+            return reset( this , XNative , params , arguments );
         };
 
-        var methods = {};
+        var methods = { $constructor : XNative };
 
         arrayEach(PROCESSOR_KEYS, function (key) {
             PROCESSOR[ key ](XNative, params[ key ], key);
@@ -197,9 +197,9 @@
         return XNative;
     }
 
-    function _( XNative , params , args ){
+    function reset( instance , XNative , params , args ){
 
-        var me = this;
+        var me = instance;
 
         if ( params.singleton )
             if (XNative.singleton)
@@ -213,14 +213,17 @@
 
             var name = mixin.name ,
                 mixinClass = mixin.mixin ,
-                fn = function(){ return mixinClass.apply( this , args );};
+                fn = function(){ return mixinClass.apply( this , args );},
+                obj;
 
             fn.prototype = mixinClass.prototype;
 
+            obj = new fn();
+
             if( name )
-                ns( 'mixins' , me )[ name ] = new fn();
-            else
-                me.implement( new fn() , true );
+                ns( 'mixins' , me )[ name ] = obj;
+
+            me.implement( obj , true );
 
         });
 
