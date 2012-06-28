@@ -124,8 +124,9 @@
 
             //process statics
             objectEach(superClass, function (k, v) {
-                newClass[ k ] = v;
-            })
+                if( k !== 'prototype') //fix ff 3.5.9-
+                    newClass[ k ] = v;
+            });
 
             //process prototype
             objectEach(superPrototype, function (k, v) {
