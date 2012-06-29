@@ -49,7 +49,7 @@
      * @param {Object} params The constructor parameters.
      */
 
-    var XNative = function (params) {
+    var XNative = function ( params ) {
 
     };
 
@@ -119,7 +119,8 @@
             });
         },
         'extend':function (newClass, superClass) {
-            var superClass = superClass || XNative , prototype = newClass.prototype , superPrototype = superClass.prototype;
+            superClass = superClass || XNative;
+            var prototype = newClass.prototype , superPrototype = superClass.prototype;
 
 
             //process statics
@@ -175,7 +176,7 @@
 
     function XClass( params ){
 
-        var params = params || {};
+        params = params || {};
 
         var XNative = function(){
             return reset( this , XNative , params , arguments );
@@ -222,8 +223,8 @@
 
             if( name )
                 ns( 'mixins' , me )[ name ] = obj;
-
-            me.implement( obj , true );
+            else
+                me.implement( obj , true );
 
         });
 
@@ -272,7 +273,7 @@
 
     XClass.define = function (className, params) {
         if (className) {
-            var lastIndex = className.lastIndexOf('.') , newClass;
+            var lastIndex = className.lastIndexOf('.');
             return ns(lastIndex === -1 ? null : className.substr(0, lastIndex))[ className.substr(lastIndex + 1) ] = new XClass(params);
         } else
             throw new Error('empty class name!');
