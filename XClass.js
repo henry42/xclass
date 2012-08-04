@@ -81,6 +81,12 @@
         return this;
     };
 
+    /**
+     * @name XNative#initialize
+     * @function
+     * @desc constructor function
+     */
+    XNative.prototype.initialize = function () {};
 
     /**
      * @name XNative#implement
