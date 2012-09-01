@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr" id="html">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Test Title Goes Here</title>
+    <title>Test XClass</title>
     <link rel="Stylesheet" media="screen" href="testsuite.css"/>
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="jqUnit.js"></script>
@@ -13,163 +13,102 @@
         with( jqUnit ){
 
             module('XClass');
-
-            /*
-             观察者，可以被mixin
-             */
-            var Observable = new XClass({
-
-                //一旦被mixin，对象初始化时，initialize方法会被调用
-                initialize : function(){
-                    this.events = {};
-                },
-                //绑定事件
-                on : function( name , func ){
-                    if( !this.events[ name ] )
-                        this.events[ name ] = [ func ];
-                    else
-                        this.events[ name ].push( func );
-                },
-                //解绑所有
-                unAll : function( ){
-                    this.events = {};
-                },
-                //触发事件
-                fireEvent : function( name , opts ){
-                    if( !this.events[ name ] )
-                        return;
-                    for( var i = 0 , func ; func = this.events[ name ][i] ; i++ )
-                        func.apply( this , opts || [] );
-                }
-            });
-
-            //定义Animal对象
-            var Animal = new XClass({
-                //Animal对象的构造函数
-                initialize : function(){
-                    this.name = 'animal';
-                },
-                //方法
-                bark : function( word ){
-                    return this.name + ' barks ' + word + '';
-                },
-                barkLoudly : function( word ){
-                    return this.name + ' barks loudly ' + word + '';
-                },
-                barkQuietly : function( word ){
-                    return this.name + ' barks quietly ' + word + '';
-                },
-                //静态方法
-                statics : {
-                    bark : function(){
-                        return 'animal static barks';
-                    }
-                },
-
-                singleton : true
-            });
-
-            //定义Cat对象
-            var Cat = new XClass({
-
-                mixins : [ Observable ],
-
-                //继承Animal
-                extend : Animal,
-
-                initialize : function(){
-                    this.name = 'cat';
-                },
-                barkQuietly : function( word ){
-                    return this.parent( 'm~' + word );
-                },
-                bark : function( word ){
-                    //访问父类方法
-                    this.fireEvent('bark');
-                    return this.parent( word );
-                }
-
-            });
-
-            //定义
-            var Dog = new XClass({
-                extend : Animal,
-
-                mixins :[ { name : 'ob' , mixin : Observable } ],
-
-                on : function( name , func ){
-                    this.mixins.ob.on( name , func );
-                    return 'Dog on is called';
-                },
-
-                bark : function(){
-                    this.mixins.ob.fireEvent('bark');
-                    return '';
-                }
-            });
-
-            //对象提供parent，可以完全复写对象的方法
-            Cat.implement({
-                bark : function( word ){
-                    //访问被覆盖的方法
-                    return this.parent( word  + ' specially');
-                }
-            });
-
-            test('static method' , function(){
-                this.equals( Animal.bark() , 'animal static barks','static method runs okay');
-                this.equals( Cat.bark() , 'animal static barks','static method on extended class runs okay');
-            });
-
-            test('method' , function(){
-                this.equals( new Animal().bark('ao~~~~~') , 'animal barks ao~~~~~','instance method runs okay' );
-            });
-
-
-            var cat = new Cat();
-            var cat2 = new Cat();
-            var dog = new Dog();
-
-            test('override method' , function(){
-                cat2.implement({
-                    bark : function( word ){
-                        return this.parent( word + ' from cat2');
-                    }
-                });
-                this.equals( cat.bark('kakaka') , 'cat barks kakaka specially' , 'override class method runs okay' );
-                this.equals( cat2.bark('kakaka') , 'cat barks kakaka from cat2 specially' , 'override instance method runs okay' );
-            });
-
-            test('extend method' , function(){
-                this.equals( cat.barkLoudly('miao~~~~') , 'cat barks loudly miao~~~~' , 'method on extend class runs okay');
-                this.equals( cat.barkQuietly('miao~~~~') , 'cat barks quietly m~miao~~~~','method on extend class runs okay');
-            });
-
-            test('mixin method' , function(){
-
-                var barked = false;
-
-                cat.on('bark' , function(){
-                    barked = true;
-                });
-                cat.bark('kakaka')
-                this.ok( barked , 'mixin called successfully');
-
-                barked = false;
-
-                this.equals(dog.on('bark' , function(){
-                    barked = true;
-                }),'Dog on is called','mixin function can not override class function');
-
-                dog.bark('kakaka');
-
-                this.ok( barked , 'mixin function called by name successfully');
-
-            });
+			
+			var Mixable = new XClass({
+				initialize : function(){
+					this.mType = 'default';
+				},
+				setMType : function( mType ){
+					this.mType = mType;
+				},
+				getMType : function(){
+					return this.mType;
+				}
+			});
+			
+			var SingletonClass = new XClass({
+				singleton : true
+			});
+			
+			
+			var A = new XClass({
+				mixins : [ Mixable , { name : 'm' , mixin : Mixable }],
+				print : function( w ){
+					return w;
+				},
+				statics : {
+					isA : function(){
+						return true;
+					},
+					print : function(){
+						return "A's static method";
+					}
+				}
+			});
+			
+			var AA = new XClass({
+				extend : A,
+				print : function( w ){
+					return "'" + this.parent(w) + "'";
+				},
+				statics : {
+					print : function(){
+						return "AA's static method";
+					}
+				}
+			});
+			
+			test('static method',function(){
+				this.ok( A.isA() === true , "static method runs okay.");
+				this.ok( AA.isA() === true , "static method can be extended.");
+				this.equals( A.print() , "A's static method" , "child's static method runs okay.");
+				this.equals( AA.print() , "AA's static method" , "static method can be overridden.");
+			});
+			
+			test('method',function(){
+				var w = 'Hello World';
+				this.equals( new A().print(w) , w , 'method runs okay.');
+				this.equals( new AA().print(w) ,"'" + w + "'" , 'method on extended class runs okay.');
+			});
+			
+			test('implement method',function(){
+				var AA2 = new XClass({ extend : A });
+					w = 'Hello World',
+					a = new AA2();
+					
+				AA2.implement({
+					print : function( w ){
+						return '"' + this.parent(w) + '"';
+					}
+				});
+				
+				a.implement({
+					print : function( w ){
+						return "'" + this.parent( w ) + "'";
+					}
+				});
+				this.equals( new AA2().print( w ) , '"' + w + '"' , 'method on implement class runs okay.');
+				this.equals( a.print( w ) ,"'\"" + w + "\"'" , 'method on implemented instance runs okay.');
+			});
+			
+			test('mixin',function(){
+				var a = new A(),
+					aa = new AA();
+					
+					a.mixins.m.setMType("a's type");
+					aa.mixins.m.setMType("aa's type");
+				
+				this.equals( a.getMType() , 'default' , 'mixin method runs okay.');
+				this.equals( aa.getMType() , 'default' , 'mixin method on extend class runs okay.');
+				this.equals( a.mixins.m.getMType() , "a's type" , 'mixin method having name runs okay.');
+				this.equals( aa.mixins.m.getMType() , "aa's type" , 'mixin method having name on extend class runs okay.');
+				
+			});
+			
 
             test('singleton' , function(){
-                this.ok( new Animal() === new Animal() ,' singleton is ok' );
-                this.ok( new Cat() !== new Cat() ,' not singleton is ok' );
+                this.ok( new SingletonClass() === new SingletonClass() ,' singleton is ok' );
+                this.ok( new A() !== new A() ,' not singleton is ok' );
             });
 
 
