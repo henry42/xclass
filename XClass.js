@@ -195,7 +195,7 @@
         });
 
         objectEach(params, function (k, v) {
-            if (!PROCESSOR[ k ])
+            if ( !PROCESSOR.hasOwnProperty( k ) )
                 methods[ k ] = v;
         });
 
