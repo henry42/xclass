@@ -1,4 +1,5 @@
 (function (global) {
+    'use strict'
 
     var objectEach = function (obj, fn , scope  ) {
         for (var x in obj)
@@ -12,18 +13,32 @@
             fn.call( scope , obj[i], i);
     };
 
+    var wrapFunction = function( func ){
+        var wrapper = function(){
+            var lastCaller = this.$caller , rtn;
+            this.$caller = wrapper;
+            rtn = func.apply( this , arguments );
+            this.$caller = lastCaller;
+            return rtn;
+        }
+        return wrapper;
+    };
+
     var extend = function (params, notOverridden) {
         var me = this;
         objectEach(params, function (name, value) {
             var prev = me[ name ];
             if (prev && notOverridden === true)
                 return;
-            me[ name ] = value;
-            if (typeof value === 'function') {
-                value.$name = name;
-                value.$owner = this;
+            if (typeof value === 'function' && name !== 'parent' && !notOverridden ) {
+                var m = me[ name ] = wrapFunction( value );
+                m.$name = name;
+                m.$owner = this;
+                m.$orgin = value;
                 if (prev)
-                    value.$prev = prev;
+                    m.$prev = prev;
+            }else{
+                me[ name ] = value;
             }
         });
     };
@@ -109,8 +124,8 @@
      * @returns {Object}
      */
     XNative.prototype.parent = function () {
-        var caller = this.parent.caller ,
-            func = caller.$prev;
+        var caller = this.$caller ,
+            func = caller && caller.$prev;
         if (!func)
             throw new Error('can not call parent');
         else {
@@ -136,9 +151,7 @@
             });
 
             //process prototype
-            objectEach(superPrototype, function (k, v) {
-                prototype[ k ] = v;
-            });
+            newClass.implement( superPrototype );
 
             //process mixins
             var mixins = newClass.mixins = [];
@@ -147,7 +160,7 @@
                 mixins.push.apply( mixins , superClass.mixins );
 
 
-            newClass.superclass = prototype.superclass = superClass;
+            newClass.superclass = prototype.superclass = superPrototype;
         },
         'mixins':function (newClass, value) {
             if( value )
