@@ -20,7 +20,8 @@
             rtn = func.apply( this , arguments );
             this.$caller = lastCaller;
             return rtn;
-        }
+        };
+        wrapper.prototype = func.prototype;
         return wrapper;
     };
 
