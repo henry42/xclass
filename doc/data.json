@@ -1,0 +1,306 @@
+{
+    "project": {
+        "name": "XClass",
+        "description": "oo support for javascript",
+        "version": "1.0.0",
+        "url": "https://github.com/henry42/xclass"
+    },
+    "files": {
+        "XClass.js": {
+            "name": "XClass.js",
+            "modules": {
+                "xclass": 1
+            },
+            "classes": {
+                "XNative": 1,
+                "XClass": 1,
+                "XClass.utils": 1
+            },
+            "fors": {
+                "XClass": 1
+            },
+            "namespaces": {
+                "XClass": 1
+            }
+        }
+    },
+    "modules": {
+        "xclass": {
+            "name": "xclass",
+            "submodules": {},
+            "classes": {
+                "XNative": 1,
+                "XClass": 1,
+                "XClass.utils": 1
+            },
+            "fors": {
+                "XClass": 1
+            },
+            "namespaces": {
+                "XClass": 1
+            },
+            "tag": "module",
+            "file": "XClass.js",
+            "line": 262
+        }
+    },
+    "classes": {
+        "XNative": {
+            "name": "XNative",
+            "shortname": "XNative",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "xclass",
+            "namespace": "",
+            "file": "XClass.js",
+            "line": 64,
+            "description": "Base Class , All classes created by XClass inherit from XNative",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "The constructor parameters.",
+                    "type": "Object"
+                }
+            ]
+        },
+        "XClass": {
+            "name": "XClass",
+            "shortname": "XClass",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "xclass",
+            "namespace": "",
+            "file": "XClass.js",
+            "line": 184,
+            "description": "Example:\n\n    \tnew XClass({\n    \t\tstatics : {\n    \t\t\tstatic_method : function(){}\n    \t\t},\n    \t\tmethod1 : function(){},\n    \t\tmethod2 : function(){},\n    \t\textend : ExtendedClass,\n    \t\tmixins : [ MixedClass1 , MixedClass2 ],\n    \t\tsingleton : false\n     \t});",
+            "mainName": "",
+            "tag": "main",
+            "itemtype": "main",
+            "_main": true,
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "The new class",
+                "type": "XNative"
+            }
+        },
+        "XClass.utils": {
+            "name": "XClass.utils",
+            "shortname": "XClass.utils",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "xclass",
+            "namespace": "XClass",
+            "file": "XClass.js",
+            "line": 262,
+            "static": 1
+        }
+    },
+    "classitems": [
+        {
+            "file": "XClass.js",
+            "line": 75,
+            "description": "When mixin class is XNative , the mixin scope will be 'this' ( the mixed-in-instance )\nor mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the mixin scope will be this.mixins.mixinClass",
+            "itemtype": "method",
+            "name": "mixin",
+            "static": 1,
+            "params": [
+                {
+                    "name": "mixinClass",
+                    "description": "",
+                    "type": "XNative|Object"
+                }
+            ],
+            "return": {
+                "description": "itself",
+                "type": "XNative"
+            },
+            "class": "XNative",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 90,
+            "description": "Implement functions to class",
+            "itemtype": "method",
+            "name": "implement",
+            "static": 1,
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "safe",
+                    "description": "",
+                    "type": "Boolean"
+                }
+            ],
+            "return": {
+                "description": "itself",
+                "type": "XNative"
+            },
+            "class": "XNative",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 105,
+            "description": "constructor function",
+            "itemtype": "method",
+            "name": "initialize",
+            "class": "XNative",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 111,
+            "description": "Implement functions to instance",
+            "itemtype": "method",
+            "name": "implement",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "safe",
+                    "description": "",
+                    "type": "Boolean"
+                }
+            ],
+            "return": {
+                "description": "itself",
+                "type": "XNative"
+            },
+            "class": "XNative",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 127,
+            "description": "Call super class's function having the same function name",
+            "itemtype": "method",
+            "name": "parent",
+            "class": "XNative",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 269,
+            "description": "Iterates through an object and invokes the given callback function for each iteration",
+            "itemtype": "method",
+            "name": "objectEach",
+            "static": 1,
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The object ot iterate",
+                    "type": "Object"
+                },
+                {
+                    "name": "The",
+                    "description": "callback function",
+                    "type": "Function"
+                }
+            ],
+            "class": "XClass.utils",
+            "module": "xclass",
+            "namespace": "XClass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 278,
+            "description": "Iterates an array and invokes the given callback function for each iteration , It will call Array.prototype.forEach if supported",
+            "itemtype": "method",
+            "name": "arrayEach",
+            "static": 1,
+            "params": [
+                {
+                    "name": "object",
+                    "description": "The array ot iterate",
+                    "type": "Array"
+                },
+                {
+                    "name": "The",
+                    "description": "callback function",
+                    "type": "Function"
+                }
+            ],
+            "class": "XClass.utils",
+            "module": "xclass",
+            "namespace": "XClass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 287,
+            "description": "Creates namespaces to be used for scoping variables",
+            "itemtype": "method",
+            "name": "ns",
+            "static": 1,
+            "params": [
+                {
+                    "name": "name",
+                    "description": "dot-namespaced format namespaces, for example: 'Myapp.package'",
+                    "type": "String"
+                },
+                {
+                    "name": "root",
+                    "description": "the root object, global if null",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "The namespace object, if name is null , it returns the root",
+                "type": "Object"
+            },
+            "class": "XClass.utils",
+            "module": "xclass",
+            "namespace": "XClass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 300,
+            "description": "Define a class",
+            "static": 1,
+            "itemtype": "method",
+            "name": "define",
+            "params": [
+                {
+                    "name": "className",
+                    "description": "The class name to create in string dot-namespaced format, for example: 'Myapp.MyClass'",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "The parameters for the new Class",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "The XNative Class",
+                "type": "XNative"
+            },
+            "class": "XClass",
+            "module": "xclass"
+        }
+    ],
+    "warnings": []
+}

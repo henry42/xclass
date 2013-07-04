@@ -1,7 +1,0 @@
-#!/bin/bash
-SOURCE="$0"
-while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
-BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-jsdoc $BASEDIR/../*.js
-rm -r ../doc
-mv $BASEDIR/out ../doc
