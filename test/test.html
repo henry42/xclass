@@ -30,21 +30,21 @@
 				singleton : true
 			});
 			
-			
-			var A = new XClass({
-				mixins : [ Mixable , { name : 'm' , mixin : Mixable }],
-				print : function( w ){
-					return w;
-				},
-				statics : {
-					isA : function(){
-						return true;
-					},
-					print : function(){
-						return "A's static method";
-					}
-				}
-			});
+			XClass.define('A',{
+                mixins : [ Mixable , { name : 'm' , mixin : Mixable }],
+                print : function( w ){
+                    return w;
+                },
+                statics : {
+                    isA : function(){
+                        return true;
+                    },
+                    print : function(){
+                        return "A's static method";
+                    }
+                }
+            });
+
 			
 			var AA = new XClass({
 				extend : A,
@@ -104,7 +104,22 @@
 				this.equals( aa.mixins.m.getMType() , "aa's type" , 'mixin method having name on extend class runs okay.');
 				
 			});
-			
+
+            test('instanceOf' , function(){
+                var a = new A(),
+                    aa = new AA();
+
+                this.equals( XClass.instanceOf(a,A) , true , "instance is 'instanceOf' class" );
+                this.equals( XClass.instanceOf(AA,a) , false , "class is not 'instanceOf' instance" );
+                this.equals( XClass.instanceOf(aa,A) , true , "extend class's instance is 'instanceOf' parent" );
+                this.equals( XClass.instanceOf(AA,A) , false , "extend class is not 'instanceOf' parent" );
+
+                this.equals( XClass.instanceOf(a,'A') , true , "instance is 'instanceOf' class (name by string)" );
+                this.equals( XClass.instanceOf(AA,'a') , false , "class is not 'instanceOf' instance (name by string)" );
+                this.equals( XClass.instanceOf(aa,'A') , true , "extend class's instance is 'instanceOf' parent (name by string)" );
+                this.equals( XClass.instanceOf(AA,'A') , false , "extend class is not 'instanceOf' parent (name by string)" );
+            });
+
 
             test('singleton' , function(){
                 this.ok( new SingletonClass() === new SingletonClass() ,' singleton is ok' );
