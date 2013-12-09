@@ -84,7 +84,7 @@
      */
 
     XNative.mixin = function ( mixinClass , name  ) {
-        this.mixins.push( { name : name , mixin : mixinClass } );
+        this.$mixins.push( { name : name , mixin : mixinClass } );
         return this;
     };
 
@@ -161,10 +161,10 @@
             newClass.implement( superPrototype );
 
             //process mixins
-            var mixins = newClass.mixins = [];
+            var mixins = newClass.$mixins = [];
 
-            if (superClass.mixins)
-                mixins.push.apply( mixins , superClass.mixins );
+            if (superClass.$mixins)
+                mixins.push.apply( mixins , superClass.$mixins );
 
 
             newClass.$superclass = prototype.$superclass = superClass;
@@ -211,7 +211,7 @@
             return reset( this , XNative , params , arguments );
         };
 
-        var methods = { $constructor : XNative };
+        var methods = {};
 
         arrayEach(PROCESSOR_KEYS, function (key) {
             PROCESSOR[ key ](XNative, params[ key ], key);
@@ -237,7 +237,7 @@
             else
                 XNative.$singleton = me;
 
-        var mixins = XNative.mixins;
+        var mixins = XNative.$mixins;
 
         arrayEach( mixins , function (mixin) {
 
