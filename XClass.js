@@ -73,8 +73,8 @@
     };
 
     /**
-    When mixin class is XNative , the mixin scope will be 'this' ( the mixed-in-instance )
-    or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the mixin scope will be this.mixins.mixinClass
+    If there is a name for example 'MixinClass', this mixin scope will be this.mixins.MixinClass,
+    Otherwise the scope will be 'this' ( the mixed-in-instance )
 
     @method mixin
     @static
@@ -346,21 +346,21 @@
         @static
         @for XClass
         @method instanceOf
-        @param {Object} the object to check
-        @param {Object|String} the XClass Object
-        @return {Boolean} Whether the object is an instance of the XClass Object.
+        @param {Object} instance the object to check
+        @param {Object|String} xNative the XNative Object
+        @return {Boolean} Whether the object is an instance of the XNative Object.
      */
-    XClass.instanceOf = function( instance , xClass ){
+    XClass.instanceOf = function( instance , xNative ){
 
-        if(typeof xClass === 'string')
-            xClass = ns(xClass , null , false );
+        if(typeof xNative === 'string')
+            xNative = ns(xNative , null , false );
 
-        if( !instance || !instance.parent || !xClass )
+        if( !instance || !instance.parent || !xNative )
             return false;
 
         var cls = instance.$constructor;
         while(cls){
-            if( cls === xClass )
+            if( cls === xNative )
                 return true;
             else
                 cls = cls.$superclass;

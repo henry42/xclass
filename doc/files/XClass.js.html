@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 1.0.0</em>
+            <em>API Docs for: 2.0.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -96,7 +96,7 @@
 @module xclass
 **/
 (function (global) {
-    &#x27;use strict&#x27;
+    &#x27;use strict&#x27;;
 
     var objectEach = function (obj, fn , scope  ) {
         for (var x in obj)
@@ -131,7 +131,7 @@
             if (typeof value === &#x27;function&#x27; &amp;&amp; name !== &#x27;parent&#x27; &amp;&amp; !notOverridden ) {
                 var m = me[ name ] = wrapFunction( value );
                 m.$name = name;
-                m.$owner = this;
+                m.$owner = me;
                 m.$orgin = value;
                 if (prev)
                     m.$prev = prev;
@@ -141,13 +141,13 @@
         });
     };
 
-    var ns = function ( name , root ) {
+    var ns = function ( name , root , createAsNeeded) {
         var part = root || global,
             parts = name &amp;&amp; name.split(&#x27;.&#x27;) || [];
 
         arrayEach(parts, function (partName) {
-            if (partName) {
-                part = part[ partName ] || ( part[ partName ] = {});
+            if (partName &amp;&amp; part) {
+                part = part[ partName ] || createAsNeeded !== false &amp;&amp; ( part[ partName ] = {} );
             }
         });
 
@@ -167,17 +167,18 @@
     };
 
     /**
- 	When mixin class is XNative , the mixin scope will be &#x27;this&#x27; ( the mixed-in-instance )
- 	or mixin class is object like { name : &#x27;MixinClass&#x27; , mixin : MixinClass } , the mixin scope will be this.mixins.mixinClass
- 	
- 	@method mixin
-	@static
-	@param {XNative|Object} mixinClass
-	@return {XNative} itself
+    If there is a name for example &#x27;MixinClass&#x27;, this mixin scope will be this.mixins.MixinClass,
+    Otherwise the scope will be &#x27;this&#x27; ( the mixed-in-instance )
+
+    @method mixin
+    @static
+    @param {XNative} mixinClass
+    @param {String} name
+    @return {XNative} itself
      */
 
     XNative.mixin = function ( mixinClass , name  ) {
-        this.mixins.push( { name : name , mixin : mixinClass } );
+        this.$mixins.push( { name : name , mixin : mixinClass } );
         return this;
     };
 
@@ -254,13 +255,13 @@
             newClass.implement( superPrototype );
 
             //process mixins
-            var mixins = newClass.mixins = [];
+            var mixins = newClass.$mixins = [];
 
-            if (superClass.mixins)
-                mixins.push.apply( mixins , superClass.mixins );
+            if (superClass.$mixins)
+                mixins.push.apply( mixins , superClass.$mixins );
 
 
-            newClass.superclass = prototype.superclass = superPrototype;
+            newClass.$superclass = prototype.$superclass = superClass;
         },
         &#x27;mixins&#x27;:function (newClass, value) {
             if( value )
@@ -304,7 +305,7 @@
             return reset( this , XNative , params , arguments );
         };
 
-        var methods = { $constructor : XNative };
+        var methods = {};
 
         arrayEach(PROCESSOR_KEYS, function (key) {
             PROCESSOR[ key ](XNative, params[ key ], key);
@@ -325,23 +326,18 @@
         var me = instance;
 
         if ( params.singleton )
-            if (XNative.singleton)
-                return XNative.singleton;
+            if (XNative.$singleton)
+                return XNative.$singleton;
             else
-                XNative.singleton = me;
+                XNative.$singleton = me;
 
-        var mixins = XNative.mixins;
+        var mixins = XNative.$mixins;
 
         arrayEach( mixins , function (mixin) {
 
             var name = mixin.name ,
                 mixinClass = mixin.mixin ,
-                fn = function(){ return mixinClass.apply( this , args );},
-                obj;
-
-            fn.prototype = mixinClass.prototype;
-
-            obj = new fn();
+                obj = createNewInstance( mixinClass,args );
 
             if( name )
                 ns( &#x27;mixins&#x27; , me )[ name ] = obj;
@@ -350,7 +346,33 @@
 
         });
 
+        instance.$constructor = XNative;
+
         return me.initialize &amp;&amp; me.initialize.apply(me, args ) || me;
+    }
+
+    function createNewInstance( sourceClass , args ){
+        // Performance optimization: http://jsperf.com/apply-vs-call-vs-invoke &amp; http://jsperf.com/invoke-new-function-vs-function
+        var length = args &amp;&amp; args.length || 0;
+        switch ( length ) {
+            case  0: return new sourceClass();
+            case  1: return new sourceClass(args[0]);
+            case  2: return new sourceClass(args[0], args[1]);
+            case  3: return new sourceClass(args[0], args[1], args[2]);
+            case  4: return new sourceClass(args[0], args[1], args[2], args[3]);
+            case  5: return new sourceClass(args[0], args[1], args[2], args[3], args[4]);
+            case  6: return new sourceClass(args[0], args[1], args[2], args[3], args[4], args[5]);
+            case  7: return new sourceClass(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            case  8: return new sourceClass(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+            case  9: return new sourceClass(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7],
+                args[8]);
+            case 10: return new sourceClass(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7],
+                args[8], args[9]);
+            default:
+                var newClass = function(){ return sourceClass.apply( this , args );};
+                newClass.prototype = sourceClass.prototype;
+                return new newClass();
+        }
     }
 
     /**
@@ -386,6 +408,7 @@
 		@static
 		@param {String} name  dot-namespaced format namespaces, for example: &#x27;Myapp.package&#x27;
 		@param {Object} root  the root object, global if null
+        @param {Boolean} createAsNeeds  create the context if needed, default true
 		@return {Object} The namespace object, if name is null , it returns the root
          */
         ns:ns
@@ -409,6 +432,42 @@
         } else
             throw new Error(&#x27;empty class name!&#x27;);
     };
+
+
+    /**
+        Checks if an object is an instance of a XClass Object.
+
+        @static
+        @for XClass
+        @method instanceOf
+        @param {Object} instance the object to check
+        @param {Object|String} xNative the XNative Object
+        @return {Boolean} Whether the object is an instance of the XNative Object.
+     */
+    XClass.instanceOf = function( instance , xNative ){
+
+        if(typeof xNative === &#x27;string&#x27;)
+            xNative = ns(xNative , null , false );
+
+        if( !instance || !instance.parent || !xNative )
+            return false;
+
+        var cls = instance.$constructor;
+        while(cls){
+            if( cls === xNative )
+                return true;
+            else
+                cls = cls.$superclass;
+        }
+
+        return false;
+    };
+
+    /**
+        @property version
+        @type {String}
+     */
+    XClass.version = &quot;2.0.2&quot;;
 
     global.XClass = XClass;
 

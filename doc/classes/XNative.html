@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 1.0.0</em>
+            <em>API Docs for: 2.0.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -113,6 +113,7 @@
 
 <div class="box intro">
     <p>Base Class , All classes created by XClass inherit from XNative</p>
+
 </div>
 
 
@@ -248,7 +249,7 @@
             
         
         
-        <a href="../files/XClass.js.html#l90"><code>XClass.js:90</code></a>
+        <a href="../files/XClass.js.html#l91"><code>XClass.js:91</code></a>
         
         </p>
 
@@ -260,6 +261,7 @@
 
     <div class="description">
         <p>Implement functions to class</p>
+
     </div>
 
     
@@ -311,7 +313,8 @@
                     
                         <span class="type"><a href="../classes/XNative.html" class="crosslink">XNative</a></span>:
                     
-                    itself
+                    <p>itself</p>
+
                 
             </div>
         </div>
@@ -373,7 +376,7 @@
             
         
         
-        <a href="../files/XClass.js.html#l111"><code>XClass.js:111</code></a>
+        <a href="../files/XClass.js.html#l112"><code>XClass.js:112</code></a>
         
         </p>
 
@@ -385,6 +388,7 @@
 
     <div class="description">
         <p>Implement functions to instance</p>
+
     </div>
 
     
@@ -436,7 +440,8 @@
                     
                         <span class="type"><a href="../classes/XNative.html" class="crosslink">XNative</a></span>:
                     
-                    itself
+                    <p>itself</p>
+
                 
             </div>
         </div>
@@ -478,7 +483,7 @@
             
         
         
-        <a href="../files/XClass.js.html#l105"><code>XClass.js:105</code></a>
+        <a href="../files/XClass.js.html#l106"><code>XClass.js:106</code></a>
         
         </p>
 
@@ -490,6 +495,7 @@
 
     <div class="description">
         <p>constructor function</p>
+
     </div>
 
     
@@ -510,6 +516,12 @@
                 <li class="arg">
                     
                         <code>mixinClass</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>name</code>
                     
                 </li>
             
@@ -559,8 +571,9 @@
     </div>
 
     <div class="description">
-        <p>When mixin class is XNative , the mixin scope will be 'this' ( the mixed-in-instance )
-or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the mixin scope will be this.mixins.mixinClass</p>
+        <p>If there is a name for example &#39;MixinClass&#39;, this mixin scope will be this.mixins.MixinClass,
+Otherwise the scope will be &#39;this&#39; ( the mixed-in-instance )</p>
+
     </div>
 
     
@@ -572,7 +585,22 @@ or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the
                 <li class="param">
                     
                         <code class="param-name">mixinClass</code>
-                        <span class="type"><a href="../classes/XNative.html" class="crosslink">XNative</a> | Object</span>
+                        <span class="type"><a href="../classes/XNative.html" class="crosslink">XNative</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
                     
 
                     
@@ -597,7 +625,8 @@ or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the
                     
                         <span class="type"><a href="../classes/XNative.html" class="crosslink">XNative</a></span>:
                     
-                    itself
+                    <p>itself</p>
+
                 
             </div>
         </div>
@@ -639,7 +668,7 @@ or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the
             
         
         
-        <a href="../files/XClass.js.html#l127"><code>XClass.js:127</code></a>
+        <a href="../files/XClass.js.html#l128"><code>XClass.js:128</code></a>
         
         </p>
 
@@ -650,7 +679,8 @@ or mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the
     </div>
 
     <div class="description">
-        <p>Call super class's function having the same function name</p>
+        <p>Call super class&#39;s function having the same function name</p>
+
     </div>
 
     

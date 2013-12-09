@@ -2,7 +2,7 @@
     "project": {
         "name": "XClass",
         "description": "oo support for javascript",
-        "version": "1.0.0",
+        "version": "2.0.1",
         "url": "https://github.com/henry42/xclass"
     },
     "files": {
@@ -41,7 +41,7 @@
             },
             "tag": "module",
             "file": "XClass.js",
-            "line": 262
+            "line": 284
         }
     },
     "classes": {
@@ -77,7 +77,7 @@
             "module": "xclass",
             "namespace": "",
             "file": "XClass.js",
-            "line": 184,
+            "line": 185,
             "description": "Example:\n\n    \tnew XClass({\n    \t\tstatics : {\n    \t\t\tstatic_method : function(){}\n    \t\t},\n    \t\tmethod1 : function(){},\n    \t\tmethod2 : function(){},\n    \t\textend : ExtendedClass,\n    \t\tmixins : [ MixedClass1 , MixedClass2 ],\n    \t\tsingleton : false\n     \t});",
             "mainName": "",
             "tag": "main",
@@ -107,7 +107,7 @@
             "module": "xclass",
             "namespace": "XClass",
             "file": "XClass.js",
-            "line": 262,
+            "line": 284,
             "static": 1
         }
     },
@@ -115,7 +115,7 @@
         {
             "file": "XClass.js",
             "line": 75,
-            "description": "When mixin class is XNative , the mixin scope will be 'this' ( the mixed-in-instance )\nor mixin class is object like { name : 'MixinClass' , mixin : MixinClass } , the mixin scope will be this.mixins.mixinClass",
+            "description": "If there is a name for example 'MixinClass', this mixin scope will be this.mixins.MixinClass,\nOtherwise the scope will be 'this' ( the mixed-in-instance )",
             "itemtype": "method",
             "name": "mixin",
             "static": 1,
@@ -123,7 +123,12 @@
                 {
                     "name": "mixinClass",
                     "description": "",
-                    "type": "XNative|Object"
+                    "type": "XNative"
+                },
+                {
+                    "name": "name",
+                    "description": "",
+                    "type": "String"
                 }
             ],
             "return": {
@@ -135,7 +140,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 90,
+            "line": 91,
             "description": "Implement functions to class",
             "itemtype": "method",
             "name": "implement",
@@ -161,7 +166,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 105,
+            "line": 106,
             "description": "constructor function",
             "itemtype": "method",
             "name": "initialize",
@@ -170,7 +175,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 111,
+            "line": 112,
             "description": "Implement functions to instance",
             "itemtype": "method",
             "name": "implement",
@@ -195,7 +200,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 127,
+            "line": 128,
             "description": "Call super class's function having the same function name",
             "itemtype": "method",
             "name": "parent",
@@ -204,7 +209,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 269,
+            "line": 291,
             "description": "Iterates through an object and invokes the given callback function for each iteration",
             "itemtype": "method",
             "name": "objectEach",
@@ -227,7 +232,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 278,
+            "line": 300,
             "description": "Iterates an array and invokes the given callback function for each iteration , It will call Array.prototype.forEach if supported",
             "itemtype": "method",
             "name": "arrayEach",
@@ -250,7 +255,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 287,
+            "line": 309,
             "description": "Creates namespaces to be used for scoping variables",
             "itemtype": "method",
             "name": "ns",
@@ -265,6 +270,11 @@
                     "name": "root",
                     "description": "the root object, global if null",
                     "type": "Object"
+                },
+                {
+                    "name": "createAsNeeds",
+                    "description": "create the context if needed, default true",
+                    "type": "Boolean"
                 }
             ],
             "return": {
@@ -277,7 +287,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 300,
+            "line": 323,
             "description": "Define a class",
             "static": 1,
             "itemtype": "method",
@@ -298,6 +308,41 @@
                 "description": "The XNative Class",
                 "type": "XNative"
             },
+            "class": "XClass",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 343,
+            "description": "Checks if an object is an instance of a XClass Object.",
+            "static": 1,
+            "itemtype": "method",
+            "name": "instanceOf",
+            "params": [
+                {
+                    "name": "instance",
+                    "description": "the object to check",
+                    "type": "Object"
+                },
+                {
+                    "name": "xNative",
+                    "description": "the XNative Object",
+                    "type": "Object|String"
+                }
+            ],
+            "return": {
+                "description": "Whether the object is an instance of the XNative Object.",
+                "type": "Boolean"
+            },
+            "class": "XClass",
+            "module": "xclass"
+        },
+        {
+            "file": "XClass.js",
+            "line": 372,
+            "itemtype": "property",
+            "name": "version",
+            "type": "{String}",
             "class": "XClass",
             "module": "xclass"
         }
