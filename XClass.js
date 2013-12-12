@@ -328,13 +328,14 @@
     	@method define
     	@param {String} className The class name to create in string dot-namespaced format, for example: 'Myapp.MyClass'
     	@param {Object} params The parameters for the new Class
+        @param {Object} root The root,  default global
     	@return {XNative} The XNative Class
      */
 
-    XClass.define = function (className, params) {
+    XClass.define = function (className, params , root ) {
         if (className) {
             var lastIndex = className.lastIndexOf('.');
-            return ns(lastIndex === -1 ? null : className.substr(0, lastIndex))[ className.substr(lastIndex + 1) ] = new XClass(params);
+            return ns(lastIndex === -1 ? null : className.substr(0, lastIndex) , root )[ className.substr(lastIndex + 1) ] = new XClass(params);
         } else
             throw new Error('empty class name!');
     };
@@ -347,13 +348,10 @@
         @for XClass
         @method instanceOf
         @param {Object} instance the object to check
-        @param {Object|String} xNative the XNative Object
+        @param {Object} xNative the XNative Object
         @return {Boolean} Whether the object is an instance of the XNative Object.
      */
     XClass.instanceOf = function( instance , xNative ){
-
-        if(typeof xNative === 'string')
-            xNative = ns(xNative , null , false );
 
         if( !instance || !instance.parent || !xNative )
             return false;
@@ -373,9 +371,12 @@
         @property version
         @type {String}
      */
-    XClass.version = "2.0.2";
+    XClass.version = "2.0.3";
 
-    global.XClass = XClass;
+    if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports)
+        module.exports = XClass;
+    else
+        global.XClass = XClass;
 
     // amd support
     if (typeof define === 'function' && define.amd)
@@ -383,4 +384,4 @@
             return XClass;
         });
 
-})(window);
+})(this);

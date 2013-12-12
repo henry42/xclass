@@ -1,181 +1,19 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr" id="html">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Test XClass</title>
-    <link rel="Stylesheet" media="screen" href="testsuite.css"/>
-    <script type="text/javascript" src="jquery.js"></script>
-    <script type="text/javascript" src="jqUnit.js"></script>
-    <script type="text/javascript" src="../XClass.js"></script>
-    <script type="text/javascript" src="../XUtils.js"></script>
-    <script>
-
-        with( jqUnit ){
-
-            module('XClass');
-			
-			var Mixable = new XClass({
-				initialize : function(){
-					this.mType = 'default';
-				},
-				setMType : function( mType ){
-					this.mType = mType;
-				},
-				getMType : function(){
-					return this.mType;
-				}
-			});
-			
-			var SingletonClass = new XClass({
-				singleton : true
-			});
-			
-			XClass.define('A',{
-                mixins : [ Mixable , { name : 'm' , mixin : Mixable }],
-                print : function( w ){
-                    return w;
-                },
-                statics : {
-                    isA : function(){
-                        return true;
-                    },
-                    print : function(){
-                        return "A's static method";
-                    }
-                }
-            });
-
-			
-			var AA = new XClass({
-				extend : A,
-				print : function( w ){
-					return "'" + this.parent(w) + "'";
-				},
-				statics : {
-					print : function(){
-						return "AA's static method";
-					}
-				}
-			});
-			
-			test('static method',function(){
-				this.ok( A.isA() === true , "static method runs okay.");
-				this.ok( AA.isA() === true , "static method can be extended.");
-				this.equals( A.print() , "A's static method" , "child's static method runs okay.");
-				this.equals( AA.print() , "AA's static method" , "static method can be overridden.");
-			});
-			
-			test('method',function(){
-				var w = 'Hello World';
-				this.equals( new A().print(w) , w , 'method runs okay.');
-				this.equals( new AA().print(w) ,"'" + w + "'" , 'method on extended class runs okay.');
-			});
-			
-			test('implement method',function(){
-				var AA2 = new XClass({ extend : A });
-					w = 'Hello World',
-					a = new AA2();
-					
-				AA2.implement({
-					print : function( w ){
-						return '"' + this.parent(w) + '"';
-					}
-				});
-				
-				a.implement({
-					print : function( w ){
-						return "'" + this.parent( w ) + "'";
-					}
-				});
-				this.equals( new AA2().print( w ) , '"' + w + '"' , 'method on implement class runs okay.');
-				this.equals( a.print( w ) ,"'\"" + w + "\"'" , 'method on implemented instance runs okay.');
-			});
-			
-			test('mixin',function(){
-				var a = new A(),
-					aa = new AA();
-					
-					a.mixins.m.setMType("a's type");
-					aa.mixins.m.setMType("aa's type");
-				
-				this.equals( a.getMType() , 'default' , 'mixin method runs okay.');
-				this.equals( aa.getMType() , 'default' , 'mixin method on extend class runs okay.');
-				this.equals( a.mixins.m.getMType() , "a's type" , 'mixin method having name runs okay.');
-				this.equals( aa.mixins.m.getMType() , "aa's type" , 'mixin method having name on extend class runs okay.');
-				
-			});
-
-            test('instanceOf' , function(){
-                var a = new A(),
-                    aa = new AA();
-
-                this.equals( XClass.instanceOf(a,A) , true , "instance is 'instanceOf' class" );
-                this.equals( XClass.instanceOf(AA,a) , false , "class is not 'instanceOf' instance" );
-                this.equals( XClass.instanceOf(aa,A) , true , "extend class's instance is 'instanceOf' parent" );
-                this.equals( XClass.instanceOf(AA,A) , false , "extend class is not 'instanceOf' parent" );
-
-                this.equals( XClass.instanceOf(a,'A') , true , "instance is 'instanceOf' class (name by string)" );
-                this.equals( XClass.instanceOf(AA,'a') , false , "class is not 'instanceOf' instance (name by string)" );
-                this.equals( XClass.instanceOf(aa,'A') , true , "extend class's instance is 'instanceOf' parent (name by string)" );
-                this.equals( XClass.instanceOf(AA,'A') , false , "extend class is not 'instanceOf' parent (name by string)" );
-            });
-
-
-            test('singleton' , function(){
-                this.ok( new SingletonClass() === new SingletonClass() ,' singleton is ok' );
-                this.ok( new A() !== new A() ,' not singleton is ok' );
-            });
-
-
-            module('XUtils');
-
-            test('typeof' , function(){
-                this.equals( 'number' , XUtils.typeOf(1) , 'number type');
-                this.equals( 'number' , XUtils.typeOf(1/0) , 'NaN type');
-                this.equals( 'object' , XUtils.typeOf({}) , 'object type');
-                this.equals( 'string' , XUtils.typeOf("2") , 'number type');
-                this.equals( 'regexp' , XUtils.typeOf(/a/) , 'regexp type');
-                this.equals( 'function' , XUtils.typeOf(function(){}) , 'function type');
-            });
-
-            test('clone' , function(){
-                var a = {
-                    b : { c : new Date(),
-                          d : document.getElementsByTagName('div')[0],
-                          e : [ {} , 1 ]
-                    }
-                };
-
-                var cloneA = XUtils.clone( a );
-
-                this.ok( a !== cloneA , 'self is not equal' );
-                this.ok(a.b !== cloneA.b , 'members are not equal' );
-                this.ok(a.b.c.getTime() === cloneA.b.c.getTime() && a.b.c !==  cloneA.b.c , 'clone time is ok' );
-                this.ok(a.b.d !== cloneA.b.d , 'clone node is ok' );
-                this.ok(a.b.e.length == cloneA.b.e.length , 'clone array is ok' );
-                this.ok(a.b.e[0] !== cloneA.b.e[0] , 'clone array\'s members are not equal' );
-            });
-
-
-        }
-    </script>
-  </head>
-  <body id="body">
-    <h1 id="header">XClass Test</h1>
-		
-    <h2 id="banner"></h2>
-		
-    <h2 id="userAgent"></h2>
-		
-    <!-- Test HTML -->
-    <div id="main" style="display: none;">
-      <form id="test-form">
-        <input/>
-      </form>
-      <div id="ajax">
-        
-      </div>
-    </div>
-    <ol id="tests"></ol>
-  </body>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mocha Tests</title>
+    <link rel="stylesheet" href="mocha.css" />
+</head>
+<body>
+<div id="mocha"></div>
+<script src="mocha.js"></script>
+<script src="node_modules/expect.js/expect.js"></script>
+<script>mocha.setup('bdd')</script>
+<script src="../XClass.js"></script>
+<script src="xclass.js"></script>
+<script>
+    mocha.checkLeaks();
+    mocha.run();
+</script>
+</body>
 </html>

@@ -302,6 +302,11 @@
                     "name": "params",
                     "description": "The parameters for the new Class",
                     "type": "Object"
+                },
+                {
+                    "name": "root",
+                    "description": "The root,  default global",
+                    "type": "Object"
                 }
             ],
             "return": {
@@ -313,7 +318,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 343,
+            "line": 344,
             "description": "Checks if an object is an instance of a XClass Object.",
             "static": 1,
             "itemtype": "method",
@@ -327,7 +332,7 @@
                 {
                     "name": "xNative",
                     "description": "the XNative Object",
-                    "type": "Object|String"
+                    "type": "Object"
                 }
             ],
             "return": {
@@ -339,7 +344,7 @@
         },
         {
             "file": "XClass.js",
-            "line": 372,
+            "line": 370,
             "itemtype": "property",
             "name": "version",
             "type": "{String}",
